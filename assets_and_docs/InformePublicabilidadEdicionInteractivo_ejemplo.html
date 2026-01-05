@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestión de Riesgos - Publicabilidad Edición (Ejemplo)</title>
+  <style>
+    :root { --tele-blue:#0066FF; --tele-white:#F2F4FF; --pure-white:#FFFFFF; --grey-9:#031A34; --grey-6:#58617A; --grey-2:#D1D5E4; }
+    body { font-family:'Segoe UI', Arial, sans-serif; background-color:var(--tele-white); color:var(--grey-6); margin:0; }
+    header { background-color:var(--tele-blue); color:white; padding:25px 0; border-bottom:4px solid #0055D4; }
+    .container { max-width:1200px; margin:0 auto; padding:0 24px; }
+    .header-container { display:flex; justify-content:space-between; align-items:center; gap:18px; }
+    .header-text h1 { font-size:26px; margin:0; font-weight:800; }
+    .header-text p { margin:0; opacity:0.85; font-size:14px; }
+    .header-info { text-align:right; }
+    .hdr-badge { display:inline-block; margin-top:8px; padding:7px 12px; border-radius:999px; font-weight:900; font-size:12px; letter-spacing:0.4px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.45); }
+    .hdr-badge.publicable { background:rgba(232,245,233,0.18); }
+    .hdr-badge.no-publicable { background:rgba(255,235,238,0.18); }
+    .main-container { margin-top:35px; padding-bottom:60px; }
+    .card { background:white; padding:18px; border-radius:18px; border:1px solid var(--grey-2); }
+    h2 { color:var(--grey-9); border-bottom:2px solid var(--tele-blue); padding-bottom:8px; margin:0 0 14px 0; }
+    .verdict-card { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-bottom:14px; }
+    .verdict-badge { padding:8px 14px; border-radius:999px; font-weight:bold; font-size:12px; letter-spacing:0.5px; text-transform:uppercase; }
+    .verdict-publicable { background:#E8F5E9; color:#1B5E20; }
+    .verdict-no-publicable { background:#FFEBEE; color:#B71C1C; }
+    .verdict-no-aplica { background:#ECEFF1; color:#455A64; }
+    .checklist { display:grid; gap:12px; }
+    .check-item { border:1px solid var(--grey-2); border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    .check-left { flex:1; }
+    .check-text { font-weight:600; color:var(--grey-9); }
+    .check-detail { margin-top:4px; font-size:12px; color:var(--grey-6); }
+    .check-state { font-size:11px; font-weight:bold; padding:4px 8px; border-radius:999px; text-transform:uppercase; white-space:nowrap; }
+    .state-cumple { background:#E8F5E9; color:#1B5E20; }
+    .state-no-cumple { background:#FFEBEE; color:#B71C1C; }
+    .state-no-aplica { background:#ECEFF1; color:#455A64; }
+    .layout { display:grid; grid-template-columns: 360px 1fr; gap:18px; align-items:start; }
+    @media (max-width: 980px) { .layout { grid-template-columns:1fr; } }
+    .sidebar { position:sticky; top:16px; }
+    .sidebar-top { display:grid; gap:10px; margin-bottom:12px; }
+    .search { width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:1px solid var(--grey-2); outline:none; }
+    .filters { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { border:1px solid var(--grey-2); background:#F3F5FC; padding:8px 10px; border-radius:999px; cursor:pointer; font-weight:700; font-size:12px; color:var(--grey-6); }
+    .chip.active { background:var(--pure-white); color:var(--tele-blue); border-color:var(--tele-blue); }
+    .risk-list { display:grid; gap:10px; }
+    .risk-item { border:1px solid var(--grey-2); border-radius:14px; padding:12px; cursor:pointer; background:white; display:grid; gap:6px; }
+    .risk-item.active { outline:2px solid var(--tele-blue); border-color:transparent; }
+    .risk-item.no-publicable { border-left:6px solid #B71C1C; background:#FFF7F8; }
+    .risk-item.publicable { border-left:6px solid #1B5E20; }
+    .risk-item.no-aplica { border-left:6px solid #455A64; background:#FAFBFD; }
+    .risk-head { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    .risk-code { font-weight:800; color:var(--grey-9); }
+    .risk-desc { font-size:12px; color:var(--grey-6); line-height:1.35; }
+    .mini-badge { padding:4px 8px; border-radius:999px; font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:0.4px; }
+    .mini-publicable { background:#E8F5E9; color:#1B5E20; }
+    .mini-no-publicable { background:#FFEBEE; color:#B71C1C; }
+    .mini-no-aplica { background:#ECEFF1; color:#455A64; }
+    .list-links { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .link { border:1px solid var(--grey-2); background:#F3F5FC; padding:8px 10px; border-radius:999px; cursor:pointer; font-weight:800; font-size:12px; color:var(--grey-9); }
+    .link:hover { border-color:var(--tele-blue); }
+    footer { text-align:center; padding:40px; color:var(--grey-6); font-size:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-container">
+      <div class="header-text">
+        <h1>GESTIÓN DE RIESGOS - Publicabilidad</h1>
+        <p>Informe interactivo por edición (ejemplo)</p>
+      </div>
+      <div class="header-info">
+        <p style="margin:0;"><strong id="hdrProyecto">-</strong></p>
+        <p style="margin:0;">Fecha: <span id="hdrFecha">-</span></p>
+        <div id="hdrEdicionBadge" class="hdr-badge">-</div>
+      </div>
+    </div>
+  </header>
+  <div class="container main-container">
+    <div class="layout">
+      <div class="sidebar">
+        <div class="card sidebar-top">
+          <div class="verdict-card">
+            <div>
+              <div style="font-weight:800;color:var(--grey-9);">Edición</div>
+              <div style="font-size:13px;color:var(--grey-6);" id="lblEdicion">-</div>
+              <div style="font-size:12px;color:var(--grey-6);margin-top:6px;" id="lblResumen">-</div>
+            </div>
+            <div class="verdict-badge" id="badgeEdicion">-</div>
+          </div>
+          <input id="txtBuscar" class="search" placeholder="Buscar por código o texto..." />
+          <div class="filters">
+            <button class="chip active" data-filter="Todos">Todos</button>
+            <button class="chip" data-filter="Publicable">Publicables</button>
+            <button class="chip" data-filter="NoPublicable">No publicables</button>
+            <button class="chip" data-filter="NoAplica">No aplica</button>
+          </div>
+        </div>
+        <div class="risk-list" id="riskList"></div>
+      </div>
+      <div class="detail">
+        <div class="card" id="detailPanel"></div>
+      </div>
+    </div>
+  </div>
+  <footer><p>© <span id="hdrYear"></span> Telefónica - Aplicación GESTIÓN DE RIESGOS</p></footer>
+
+  <script id="data" type="application/json">{
+  "edicion": {
+    "proyecto": "PROY-ACCES-001",
+    "nombre": "Edición 12 - Propuesta Técnica"
+  },
+  "resumen": {
+    "total": 5,
+    "publicables": 2,
+    "noPublicables": 2,
+    "noAplica": 1,
+    "edicionPublicable": false
+  },
+  "riesgos": [
+    {
+      "idRiesgo": "RID-001",
+      "codigo": "R-OF-001",
+      "descripcion": "Retraso de proveedor crítico en la entrega de evidencias",
+      "veredicto": "Publicable",
+      "checks": [
+        {"texto": "El riesgo tiene plan de mitigación", "estado": "Cumple", "detalle": "Plan documentado y asignado a Responsable"},
+        {"texto": "Existe responsable asignado", "estado": "Cumple", "detalle": "Responsable: J. Pérez"},
+        {"texto": "Impacto económico supera umbral", "estado": "NoAplica", "detalle": "Impacto estimado por debajo del umbral"},
+        {"texto": "Fecha de aceptación registrada", "estado": "Cumple", "detalle": "Aceptado el 15/12/2025"}
+      ]
+    },
+    {
+      "idRiesgo": "RID-002",
+      "codigo": "R-OF-002",
+      "descripcion": "Contiene información sensible sin clasificación y sin justificación",
+      "veredicto": "NoPublicable",
+      "checks": [
+        {"texto": "Clasificación de la información conforme", "estado": "NoCumple", "detalle": "Se detecta contenido sensible sin clasificar (debe ser SINCLAS o justificar)"},
+        {"texto": "Documento adjunto revisado", "estado": "Cumple", "detalle": "Revisión de anexos completada"},
+        {"texto": "Observaciones de calidad resueltas", "estado": "NoCumple", "detalle": "Pendiente cerrar NC-QA-014"},
+        {"texto": "Trazabilidad con expediente", "estado": "Cumple", "detalle": "Vinculado a EXP-2025-0187"}
+      ]
+    },
+    {
+      "idRiesgo": "RID-003",
+      "codigo": "R-OF-003",
+      "descripcion": "Cambio de alcance por requisitos del cliente en fase final",
+      "veredicto": "Publicable",
+      "checks": [
+        {"texto": "Cambio reflejado en el expediente", "estado": "Cumple", "detalle": "Entrada registrada en el expediente"},
+        {"texto": "Impacto en planificación evaluado", "estado": "Cumple", "detalle": "Se actualiza cronograma con +2 semanas"},
+        {"texto": "Comunicación al órgano de contratación", "estado": "Cumple", "detalle": "Comunicación realizada el 20/12/2025"},
+        {"texto": "Existe riesgo duplicado en la edición", "estado": "NoAplica", "detalle": "No hay duplicidades"}
+      ]
+    },
+    {
+      "idRiesgo": "RID-004",
+      "codigo": "R-OF-004",
+      "descripcion": "Adjunto encriptado impide verificación de evidencia",
+      "veredicto": "NoPublicable",
+      "checks": [
+        {"texto": "Adjuntos accesibles para revisión", "estado": "NoCumple", "detalle": "Adjunto encriptado; no se puede validar el contenido"},
+        {"texto": "Existe alternativa de evidencia", "estado": "NoCumple", "detalle": "No hay evidencia alternativa registrada"},
+        {"texto": "Riesgo justificado y aceptado", "estado": "Cumple", "detalle": "Aceptación registrada por el JP"},
+        {"texto": "Cumple requisitos de publicación", "estado": "NoCumple", "detalle": "Bloquea el informe de publicabilidad"}
+      ]
+    },
+    {
+      "idRiesgo": "RID-005",
+      "codigo": "R-OF-005",
+      "descripcion": "Riesgo retirado en la edición (no requiere evaluación)",
+      "veredicto": "NoAplica",
+      "checks": [
+        {"texto": "Riesgo retirado", "estado": "NoAplica", "detalle": "Marcado como retirado en la edición"},
+        {"texto": "Requiere acción previa a publicación", "estado": "NoAplica", "detalle": "No aplica al estar retirado"}
+      ]
+    }
+  ]
+}</script>
+
+  <script>
+    function estadoClass(estado) { if (estado === 'Cumple') return 'state-cumple'; if (estado === 'NoCumple') return 'state-no-cumple'; return 'state-no-aplica'; }
+    function veredictoClase(ver) { if (ver === 'Publicable') return 'verdict-publicable'; if (ver === 'NoPublicable') return 'verdict-no-publicable'; return 'verdict-no-aplica'; }
+    function veredictoTexto(ver) { if (ver === 'Publicable') return 'Publicable'; if (ver === 'NoPublicable') return 'No publicable'; return 'No aplica'; }
+    function miniClase(ver) { if (ver === 'Publicable') return 'mini-badge mini-publicable'; if (ver === 'NoPublicable') return 'mini-badge mini-no-publicable'; return 'mini-badge mini-no-aplica'; }
+    function riesgoClase(ver) { if (ver === 'Publicable') return 'publicable'; if (ver === 'NoPublicable') return 'no-publicable'; return 'no-aplica'; }
+    function safe(s) { s = (s ?? '').toString(); return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
+
+    const data = JSON.parse(document.getElementById('data').textContent || '{}');
+    const riesgosAll = Array.isArray(data.riesgos) ? data.riesgos : [];
+    let filtro = 'Todos';
+    let q = '';
+    let seleccionado = null;
+
+    function aplicarFiltros(r) {
+      const texto = ((r.codigo || '') + ' ' + (r.descripcion || '')).toLowerCase();
+      const okQ = q.length === 0 || texto.includes(q);
+      const okF = filtro === 'Todos'
+        || (filtro === 'Publicable' && r.veredicto === 'Publicable')
+        || (filtro === 'NoPublicable' && r.veredicto === 'NoPublicable')
+        || (filtro === 'NoAplica' && r.veredicto === 'NoAplica');
+      return okQ && okF;
+    }
+
+    function renderCabecera() {
+      const ed = data.edicion || {};
+      const res = data.resumen || {};
+      document.getElementById('hdrProyecto').textContent = (ed.proyecto || '-') + ' / ' + (ed.nombre || '-');
+      document.getElementById('hdrFecha').textContent = new Date().toLocaleDateString('es-ES');
+      document.getElementById('hdrYear').textContent = new Date().getFullYear().toString();
+      document.getElementById('lblEdicion').textContent = (ed.proyecto || '-') + ' · ' + (ed.nombre || '-');
+      document.getElementById('lblResumen').textContent = 'Total: ' + (res.total ?? 0) + ' · Publicables: ' + (res.publicables ?? 0) + ' · No publicables: ' + (res.noPublicables ?? 0) + ' · No aplica: ' + (res.noAplica ?? 0);
+      const badge = document.getElementById('badgeEdicion');
+      const edPub = !!res.edicionPublicable;
+      badge.className = 'verdict-badge ' + (edPub ? 'verdict-publicable' : 'verdict-no-publicable');
+      badge.textContent = edPub ? 'Publicable' : 'No publicable';
+
+      const hdrBadge = document.getElementById('hdrEdicionBadge');
+      hdrBadge.className = 'hdr-badge ' + (edPub ? 'publicable' : 'no-publicable');
+      hdrBadge.textContent = 'Edición: ' + (edPub ? 'Publicable' : 'No publicable');
+    }
+
+    function renderLista() {
+      const cont = document.getElementById('riskList');
+      cont.innerHTML = '';
+      const riesgos = riesgosAll.filter(aplicarFiltros);
+      if (riesgos.length === 0) {
+        cont.innerHTML = "<div class='card'>No hay riesgos que coincidan con el filtro.</div>";
+        return;
+      }
+      for (const r of riesgos) {
+        const div = document.createElement('div');
+        const extra = ' ' + riesgoClase(r.veredicto);
+        div.className = 'risk-item' + extra + (seleccionado && seleccionado.idRiesgo === r.idRiesgo ? ' active' : '');
+        div.dataset.id = r.idRiesgo;
+        div.innerHTML = "<div class='risk-head'><div class='risk-code'>" + safe(r.codigo) + "</div><div class='" + miniClase(r.veredicto) + "'>" + safe(veredictoTexto(r.veredicto)) + "</div></div><div class='risk-desc'>" + safe(r.descripcion || '') + "</div>";
+        div.addEventListener('click', () => seleccionar(r.idRiesgo));
+        cont.appendChild(div);
+      }
+    }
+
+    function renderDetalle(r) {
+      const panel = document.getElementById('detailPanel');
+      if (!r) {
+        const res = data.resumen || {};
+        const ed = data.edicion || {};
+        const edPub = !!res.edicionPublicable;
+        const noPub = riesgosAll.filter(x => x.veredicto === 'NoPublicable');
+        let html = '';
+        html += "<div class='verdict-card'>";
+        html += "<div><h2 style='margin:0 0 6px 0;'>Resultado de la edición</h2>";
+        html += "<div style='color:var(--grey-6); font-size:13px;'><strong>" + safe(ed.proyecto || '-') + "</strong> · " + safe(ed.nombre || '-') + "</div></div>";
+        html += "<div class='verdict-badge " + (edPub ? 'verdict-publicable' : 'verdict-no-publicable') + "'>" + (edPub ? 'Publicable' : 'No publicable') + "</div>";
+        html += "</div>";
+        if (!edPub && noPub.length > 0) {
+          html += "<div style='color:var(--grey-9); font-weight:800; margin-top:10px;'>Riesgos que bloquean la publicación</div>";
+          html += "<div class='list-links'>";
+          for (const rp of noPub) {
+            html += "<button class='link' data-id='" + safe(rp.idRiesgo) + "'>" + safe(rp.codigo) + "</button>";
+          }
+          html += "</div>";
+          html += "<div style='color:var(--grey-6); font-size:12px; margin-top:10px;'>Pulsa un riesgo para ver sus comprobaciones.</div>";
+        } else {
+          html += "<div style='color:var(--grey-6);'>Pulsa en un riesgo de la lista izquierda para ver sus comprobaciones.</div>";
+        }
+        panel.innerHTML = html;
+        for (const btn of panel.querySelectorAll('button[data-id]')) {
+          btn.addEventListener('click', () => seleccionar(btn.getAttribute('data-id')));
+        }
+        return;
+      }
+
+      const verClase = veredictoClase(r.veredicto);
+      const verText = veredictoTexto(r.veredicto);
+      const checks = Array.isArray(r.checks) ? r.checks : [];
+      let html = '';
+      html += "<div class='verdict-card'>";
+      html += "<div><h2 style='margin:0 0 6px 0;'>Publicabilidad</h2><div style='color:var(--grey-6); font-size:13px;'><strong>" + safe(r.codigo) + "</strong> · " + safe(r.descripcion || '') + "</div></div>";
+      html += "<div class='verdict-badge " + verClase + "'>" + safe(verText) + "</div>";
+      html += "</div>";
+      html += "<div class='checklist'>";
+      for (const c of checks) {
+        const est = (c.estado || 'NoAplica');
+        const det = (c.detalle || '');
+        html += "<div class='check-item'>";
+        html += "<div class='check-left'><div class='check-text'>" + safe(c.texto || '') + "</div>";
+        if (det) html += "<div class='check-detail'>" + safe(det) + "</div>";
+        html += "</div>";
+        html += "<div class='check-state " + estadoClass(est) + "'>" + safe(est === 'NoCumple' ? 'No cumple' : (est === 'Cumple' ? 'Cumple' : 'No aplica')) + "</div>";
+        html += "</div>";
+      }
+      html += "</div>";
+      panel.innerHTML = html;
+    }
+
+    function seleccionar(idRiesgo) {
+      const r = riesgosAll.find(x => x.idRiesgo === idRiesgo) || null;
+      seleccionado = r;
+      renderLista();
+      renderDetalle(r);
+      if (r && r.idRiesgo) location.hash = 'riesgo-' + encodeURIComponent(r.idRiesgo);
+    }
+
+    document.getElementById('txtBuscar').addEventListener('input', (e) => {
+      q = (e.target.value || '').trim().toLowerCase();
+      renderLista();
+    });
+
+    for (const btn of document.querySelectorAll('.chip')) {
+      btn.addEventListener('click', () => {
+        for (const b of document.querySelectorAll('.chip')) b.classList.remove('active');
+        btn.classList.add('active');
+        filtro = btn.dataset.filter || 'Todos';
+        renderLista();
+      });
+    }
+
+    renderCabecera();
+    renderLista();
+
+    const noPub = riesgosAll.filter(x => x.veredicto === 'NoPublicable');
+    if (location.hash && location.hash.startsWith('#riesgo-')) {
+      const id = decodeURIComponent(location.hash.substring('#riesgo-'.length));
+      seleccionar(id);
+    } else if (noPub.length > 0) {
+      seleccionar(noPub[0].idRiesgo);
+    } else if (riesgosAll.length > 0) {
+      seleccionar(riesgosAll[0].idRiesgo);
+    } else {
+      renderDetalle(null);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indicadores de Riesgos - Calidad</title>
+    <style>
+        /* =========================================
+           TELEFÓNICA BRAND GUIDELINES - CSS
+           ========================================= */
+        :root {
+            /* Main Palette */
+            --tele-blue: #0066FF;
+            --tele-white: #F2F4FF;
+            --pure-white: #FFFFFF;
+            --alert-red: #E66C64;
+            --success-green: #5CB85C;
+            --warning-orange: #F4C495;
+
+            /* Grey Palette for Text */
+            --grey-9: #031A34; /* Headings */
+            --grey-6: #58617A; /* Body text */
+            --grey-2: #D1D5E4; /* Borders */
+            --grey-1: #F6F6F6; /* Placeholders */
+
+            /* Layout Settings */
+            --border-radius-lg: 24px;
+            --border-radius-sm: 8px;
+            --shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Telefónica Sans', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--tele-white);
+            color: var(--grey-6);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            color: var(--grey-9);
+            font-weight: 300;
+            margin-top: 0;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--tele-blue);
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: var(--tele-blue);
+            color: var(--pure-white);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom-left-radius: 50% 20px;
+            border-bottom-right-radius: 50% 20px;
+            margin-bottom: 50px;
+        }
+
+        header h1 {
+            color: var(--pure-white);
+            font-weight: 100;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background-color: var(--pure-white);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--grey-2);
+        }
+
+        .card.info {
+            border-left: 6px solid var(--tele-blue);
+        }
+
+        /* --- FLEX LAYOUTS FOR IMAGES --- */
+        .flex-row {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .text-col {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .img-col {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- IMAGES & PLACEHOLDERS --- */
+        .screenshot {
+            max-width: 550px;
+            width: 100%;
+            height: auto;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--grey-2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .screenshot:hover {
+            transform: scale(1.02);
+        }
+
+        .placeholder-box {
+            width: 100%;
+            min-height: 200px;
+            background-color: var(--grey-1);
+            border: 2px dashed var(--grey-2);
+            border-radius: var(--border-radius-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--grey-6);
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .img-caption {
+            font-size: 0.85rem;
+            color: var(--grey-6);
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* --- INTERACTIVE TABS (For Indicators) --- */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--grey-2);
+            padding-bottom: 10px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: var(--grey-6);
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--tele-blue);
+            background-color: rgba(0, 102, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            background-color: var(--tele-blue);
+            color: var(--pure-white);
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- LOGIC BOXES --- */
+        .logic-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .logic-box {
+            flex: 1;
+            padding: 20px;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.95rem;
+            min-width: 280px;
+        }
+
+        .formula { background-color: #F0F9FF; border: 1px solid #CBE6FF; color: #004488; }
+        .example { background-color: #FFFDF9; border: 1px solid #FFEeba; color: #856404; }
+        
+        .box-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+            font-weight: bold;
+        }
+
+        .indicator-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--tele-blue);
+            line-height: 1;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* --- HIGHLIGHT LIST --- */
+        ul.clean-list {
+            list-style: none;
+            padding: 0;
+        }
+        ul.clean-list li {
+            background: var(--grey-1);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            border-left: 4px solid var(--tele-blue);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 30px;
+            background-color: var(--grey-9);
+            color: var(--pure-white);
+            font-size: 0.9rem;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Indicadores de Riesgos</h1>
+        <p>Cuadro de mando + Excels auditables</p>
+    </header>
+
+    <div class="container">
+
+        <!-- SECCIÓN 1: INTRODUCCIÓN -->
+        <section class="card info">
+            <h2>¿Qué problema resuelve?</h2>
+            <p>En nuestra gestión, un <strong>Proyecto (IDProyecto)</strong> tiene varias <strong>Ediciones (IDEdicion)</strong>. Cada edición es una "foto fija" y, al crear una nueva, el sistema copia los mismos riesgos desde la edición anterior.</p>
+            <p>Si contamos "a pelo" por ediciones, el mismo riesgo se repite y se multiplica. <strong>Se ha de cambiar el enfoque:</strong></p>
+            <ul class="clean-list">
+                <li><strong>Identificados y Retirados:</strong> Se cuentan por <strong>riesgo único</strong> (sin duplicar aunque el riesgo aparezca en varias ediciones).</li>
+                <li><strong>En oferta:</strong> Se cuentan por registros de la tabla <em>TbRiesgosAIntegrar</em> (no se duplican por ediciones).</li>
+                <li><strong>Materializados:</strong> Se cuentan <strong>todas las materializaciones ocurridas</strong> (eventos), aunque sea el mismo riesgo, usando la tabla específica. En este caso si un riesgo ha tenido varias materializaciones, se cuenta cada una.</li>
+            </ul>
+        </section>
+
+        <!-- SECCIÓN 2: FLUJO DE USO -->
+        <section class="card">
+            <h2>Cómo se usa (Paso a paso)</h2>
+            <div class="flex-row">
+                <div class="text-col">
+                    <ol>
+                        <li>Selecciona <strong>Semestre</strong> (S1,S2,Anual) y <strong>Año</strong>.</li>
+                        <li>Pulsa <strong>Cargar proyectos...</strong> para obtener los proyectos del periodo.</li>
+                        <li>En <strong>Proyectos involucrados</strong>, opcionalmente quita proyectos (quedan excluidos para ese cálculo).Si necesitamos algún proyecto excluido, se ha de pulsar en Recargar</li>
+                        <li>Pulsa <strong>Aceptar</strong> y luego <strong>Calcular</strong>.</li>
+                        <li>El sistema muestra los valores en las tarjetas y habilita los botones de exportación <strong>solo si el indicador > 0</strong>.</li>
+                        <li>Al exportar, el Excel muestra <strong>detalle auditable</strong>: proyecto + código riesgo + fechas relevantes.</li>
+                    </ol>
+                </div>
+                <div class="img-col">
+                    <img src="img/01_pantalla_indicadores.png" alt="Pantalla Indicadores" class="screenshot" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="placeholder-box" style="display: none;">
+                        <span>📸 <strong>img/01_pantalla_indicadores.png</strong><br>Pantalla principal de indicadores</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="img-col">
+                    <img src="img/02_proyectos_involucrados.png" alt="Selección de Proyectos" class="screenshot" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="placeholder-box" style="display: none;">
+                        <span>📸 <strong>img/02_proyectos_involucrados.png</strong><br>Ventana de selección de proyectos</span>
+                    </div>
+                </div>
+                <div class="text-col">
+                    <p>La ventana de selección permite refinar qué expedientes entran en el cálculo antes de procesar los datos, garantizando flexibilidad en el reporte.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: DEFINICIÓN DE INDICADORES -->
+        <section class="card">
+            <h2>Definición de los Indicadores</h2>
+            <p>El cálculo siempre se hace sobre el rango de fechas seleccionado:</p>
+            <ul>
+                <li><strong>S1:</strong> 01/01/{Año} a 30/06/{Año}</li>
+                <li><strong>S2:</strong> 01/07/{Año} a 31/12/{Año}</li>
+                <li><strong>Anual:</strong> 01/01/{Año} a 31/12/{Año}</li>
+            </ul>
+
+            <!-- PESTAÑAS -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab(event, 'identificados')">1. Identificados</button>
+                <button class="tab-btn" onclick="openTab(event, 'retirados')">2. Retirados</button>
+                <button class="tab-btn" onclick="openTab(event, 'oferta')">3. En Oferta</button>
+                <button class="tab-btn" onclick="openTab(event, 'materializados')">4. Materializados</button>
+                <button class="tab-btn" onclick="openTab(event, 'trasladados')">5. Trasladados</button>
+            </div>
+
+            <!-- 1. IDENTIFICADOS -->
+            <div id="identificados" class="tab-content active">
+                <h3><span class="indicator-number">01</span> Riesgos Identificados</h3>
+                <p>Mide cuántos riesgos se han identificado en el periodo.</p>
+                
+                <div class="logic-container">
+                    <div class="logic-box formula">
+                        <span class="box-title" style="color: var(--tele-blue);">Lógica Técnica</span>
+                        <p><strong>Tabla:</strong> TbRiesgos (vía TbProyectosEdiciones).</p>
+                        <p><strong>Filtro:</strong> <code>FechaDetectado</code> dentro del rango.</p>
+                        <p><strong>Anti-Duplicado:</strong> Se cuenta una sola vez por riesgo (mismo Código Único/Riesgo), aunque aparezca en múltiples ediciones del proyecto.</p>
+                    </div>
+                    <div class="logic-box example">
+                        <span class="box-title" style="color: #C48349;">Ejemplo</span>
+                        <p>Proyecto <strong>GR05</strong>, Riesgo <strong>R001</strong>.</p>
+                        <ul>
+                            <li>Edición E1 (Enero): Contiene R001 (Fecha: 22/01/2025).</li>
+                            <li>Edición E2 (Abril): Contiene R001 copiado.</li>
+                        </ul>
+                        <p><strong>Resultado S1:</strong> Cuenta como <strong>1</strong> (R001).</p>
+                        <p><em>En el Excel:</em> Verás Proyecto + Código + FechaDetectado.</p>
+                    </div>
+                </div>
+                <div class="img-col" style="margin-top: 20px;">
+                    <img src="img/03_excel_identificados.png" alt="Excel Identificados" class="screenshot" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="placeholder-box" style="display: none;">
+                        <span>📸 <strong>img/03_excel_identificados.png</strong></span>
+                    </div>
+                    <div class="img-caption">Excel auditable para comprobar qué riesgos justifican el total.</div>
+                </div>
+            </div>
+
+            <!-- 2. RETIRADOS -->
+            <div id="retirados" class="tab-content">
+                <h3><span class="indicator-number">02</span> Riesgos Retirados</h3>
+                <p>Mide cuántos riesgos se han retirado en el periodo.</p>
+                
+                <div class="logic-container">
+                    <div class="logic-box formula">
+                        <span class="box-title" style="color: var(--tele-blue);">Lógica Técnica</span>
+                        <p><strong>Tabla:</strong> TbRiesgos.</p>
+                        <p><strong>Filtro:</strong> <code>FechaRetirado</code> dentro del rango (y no nula).</p>
+                        <p><strong>Anti-Duplicado:</strong> Igual que Identificados, se cuenta el evento de retirada una sola vez por riesgo único.</p>
+                    </div>
+                    <div class="logic-box example">
+                        <span class="box-title" style="color: #C48349;">Ejemplo</span>
+                        <p>Riesgo R001 se retira el <strong>15/03/2025</strong>.</p>
+                        <ul>
+                            <li>Aunque el riesgo aparezca en E1 y E2, la fecha de retirada es única para la entidad riesgo.</li>
+                        </ul>
+                        <p><strong>Resultado S1:</strong> Cuenta como <strong>1</strong>.</p>
+                    </div>
+                </div>
+                <div class="img-col" style="margin-top: 20px;">
+                    <img src="img/04_excel_retirados.png" alt="Excel Retirados" class="screenshot" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="placeholder-box" style="display: none;">
+                        <span>📸 <strong>img/04_excel_retirados.png</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. EN OFERTA -->
+            <div id="oferta" class="tab-content">
+                <h3><span class="indicator-number">03</span> En Oferta Gestionados</h3>
+                <p>Mide cuántos riesgos han sido gestionados en fase de oferta durante el periodo.</p>
+                
+                <div class="logic-container">
+                    <div class="logic-box formula">
+                        <span class="box-title" style="color: var(--tele-blue);">Lógica Técnica</span>
+                        <p><strong>Tabla:</strong> TbRiesgosAIntegrar (Fase oferta).</p>
+                        <p><strong>Filtro:</strong> <code>FechaAltaRegistro</code> dentro del rango.</p>
+                        <p><strong>Nota:</strong> Incluye todos los registros, independientemente de si se decidió trasladarlos a ejecución o no.</p>
+                    </div>
+                    <div class="logic-box example">
+                        <span class="box-title" style="color: #C48349;">Ejemplo</span>
+                        <ul>
+                            <li>R001 (Alta: 22/01/2025, Trasladar='Sí')</li>
+                            <li>R002 (Alta: 22/01/2025, Trasladar='Sí')</li>
+                            <li> (Alta: 22/01/2025, Trasladar=Vacío)</li>
+                        </ul>
+                        <p><strong>Resultado S1:</strong> Cuenta <strong>3</strong>.</p>
+                    </div>
+                </div>
+                <div class="img-col" style="margin-top: 20px;">
+                    <img src="img/05_excel_oferta_gestionados.png" alt="Excel Oferta" class="screenshot" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="placeholder-box" style="display: none;">
+                        <span>📸 <strong>img/05_excel_oferta_gestionados.png</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. MATERIALIZADOS -->
+            <div id="materializados" class="tab-content">
+                <h3><span class="indicator-number">04</span> Materializados</h3>
+                <p>Número de <strong>eventos</strong> de materialización ocurridos. Aquí NO se deduplica por riesgo, porque interesa contar cada vez que un riesgo se materializa.</p>
+                
+                <div class="logic-container">
+                    <div class="logic-box formula">
+                        <span class="box-title" style="color: var(--tele-blue);">Lógica Técnica</span>
+                        <p><strong>Tabla:</strong> TbRiesgosMaterializaciones.</p>
+                        <p><strong>Filtro:</strong> <code>Fecha</code> dentro del rango Y <code>EsMaterializacion = 'Sí'</code>.</p>
+                        <p><strong>Regla:</strong> Cada fila válida es 1 evento. Si un riesgo se materializa 2 veces, suma 2.</p>
+                    </div>
+                    <div class="logic-box example">
+                        <span class="box-title" style="color: #C48349;">Ejemplo</span>
+                        <p>Riesgo R010:</p>
+                        <ul>
+                            <li>10/02/2025: Se materializa ('Sí').</li>
+                            <li>20/02/2025: Se des-materializa ('No').</li>
+                            <li>25/05/2025: Se vuelve a materializar ('Sí').</li>
+                        </ul>
+                        <p><strong>Resultado S1:</strong> Cuenta <strong>2</strong> eventos.</p>
+                    </div>
+                </div>
+                <div class="img-col" style="margin-top: 20px;">
+                    <img src="img/07_excel_materializados.png" alt="Excel Materializados" class="screenshot" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="placeholder-box" style="display: none;">
+                        <span>📸 <strong>img/07_excel_materializados.png</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. TRASLADADOS -->
+            <div id="trasladados" class="tab-content">
+                <h3><span class="indicator-number">05</span> En Oferta Trasladados</h3>
+                <p>Subconjunto de riesgos de oferta que han sido marcados para pasar a gestión final (Ejecución).</p>
+                
+                <div class="logic-container">
+                    <div class="logic-box formula">
+                        <span class="box-title" style="color: var(--tele-blue);">Lógica Técnica</span>
+                        <p><strong>Tabla:</strong> TbRiesgosAIntegrar.</p>
+                        <p><strong>Filtro 1:</strong> <code>FechaAltaRegistro</code> dentro del rango.</p>
+                        <p><strong>Filtro 2:</strong> <code>Trasladar = 'Sí'</code>.</p>
+                    </div>
+                    <div class="logic-box example">
+                        <span class="box-title" style="color: #C48349;">Ejemplo</span>
+                        <p>Del ejemplo anterior (donde había 3 gestionados):</p>
+                        <ul>
+                            <li>R001 (Trasladar='Sí') -> <strong>Cuenta</strong></li>
+                            <li>R002 (Trasladar='Sí') -> <strong>Cuenta</strong></li>
+                            <li>R003 (Trasladar='') -> <strong>NO Cuenta</strong></li>
+                        </ul>
+                        <p><strong>Resultado S1:</strong> Cuenta <strong>2</strong>.</p>
+                    </div>
+                </div>
+                <div class="img-col" style="margin-top: 20px;">
+                    <img src="img/06_excel_oferta_trasladados.png" alt="Excel Trasladados" class="screenshot" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="placeholder-box" style="display: none;">
+                        <span>📸 <strong>img/06_excel_oferta_trasladados.png</strong></span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SECCIÓN 4: RESUMEN RÁPIDO -->
+        <section class="card info">
+            <h2>Resumen en 30 segundos</h2>
+            <ul class="clean-list">
+                <li><strong>Identificados:</strong> Riesgos detectados en el periodo (sin duplicar por ediciones).</li>
+                <li><strong>Retirados:</strong> Riesgos retirados en el periodo (sin duplicar por ediciones).</li>
+                <li><strong>En oferta gestionados:</strong> Entradas en TbRiesgosAIntegrar (incluye Trasladar sí/no).</li>
+                <li><strong>Materializados:</strong> Eventos de materialización 'Sí' (se pueden repetir por riesgo).</li>
+                <li><strong>En oferta trasladados:</strong> Subset de oferta con Trasladar='Sí'.</li>
+            </ul>
+            <p><strong>¿Por qué es auditable?</strong> Cada tarjeta del cuadro de mando genera un Excel asociado con Proyecto + Código de riesgo + Fechas. No hace falta "creer" el número: puede verificarse fila a fila.</p>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>© 2025 Telefónica - Aplicación de Gestión de Riesgos</p>
+    </footer>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>

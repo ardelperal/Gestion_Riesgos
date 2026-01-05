@@ -1,0 +1,389 @@
+Option Compare Database
+Option Explicit
+
+Public Function GenerarInformePublicabilidadEdicionInteractivoHTML( _
+                                                                    ByVal p_Edicion As Edicion, _
+                                                                    Optional ByVal p_hWnd As Long, _
+                                                                    Optional ByRef p_Error As String _
+                                                                    ) As String
+
+    Dim m_ColRiesgos As Scripting.Dictionary
+    Dim m_Id As Variant
+    Dim m_Riesgo As riesgo
+
+    Dim m_Datos As tPublicabilidadRiesgoDatos
+    Dim m_Checks As Scripting.Dictionary
+    Dim m_Veredicto As EnumPublicabilidadVeredicto
+    Dim m_Publicable As EnumSiNo
+    Dim m_ErrorLocal As String
+
+    Dim m_Root As Scripting.Dictionary
+    Dim m_EdicionJSON As Scripting.Dictionary
+    Dim m_Resumen As Scripting.Dictionary
+    Dim m_RiesgosArr As Collection
+
+    Dim m_Total As Long
+    Dim m_Pub As Long
+    Dim m_NoPub As Long
+    Dim m_NoAplica As Long
+    Dim m_EdicionPublicable As Boolean
+
+    Dim m_JSON As String
+    Dim m_HTML As String
+    Dim m_URL As String
+
+    On Error GoTo errores
+    p_Error = ""
+
+    If p_Edicion Is Nothing Then
+        p_Error = "Se ha de indicar la edición"
+        Err.Raise 1000
+    End If
+    If p_Edicion.IDEdicion = "" Then
+        p_Error = "No se ha podido determinar el IDEdicion"
+        Err.Raise 1000
+    End If
+
+    m_ErrorLocal = ""
+    Set m_ColRiesgos = Constructor.getRiesgosPorEdicion(p_Edicion.IDEdicion, EnumSiNo.Sí, m_ErrorLocal)
+    If m_ErrorLocal <> "" Then
+        p_Error = m_ErrorLocal
+        Err.Raise 1000
+    End If
+    If m_ColRiesgos Is Nothing Then
+        p_Error = "La edición no tiene riesgos"
+        Err.Raise 1000
+    End If
+
+    Set m_RiesgosArr = New Collection
+    m_Total = 0
+    m_Pub = 0
+    m_NoPub = 0
+    m_NoAplica = 0
+    m_EdicionPublicable = True
+
+    For Each m_Id In m_ColRiesgos
+        Set m_Riesgo = m_ColRiesgos(m_Id)
+        m_Total = m_Total + 1
+
+        m_ErrorLocal = ""
+        If ConstruirDatosPublicabilidadRiesgo(m_Riesgo, m_Datos, m_ErrorLocal) = EnumSiNo.No Then
+            p_Error = "Error al evaluar publicabilidad (" & m_Riesgo.CodigoRiesgo & "): " & m_ErrorLocal
+            Err.Raise 1000
+        End If
+
+        m_ErrorLocal = ""
+        m_Publicable = EvaluarPublicabilidadRiesgo(m_Datos, m_Checks, m_Veredicto, m_ErrorLocal)
+        If m_ErrorLocal <> "" Then
+            p_Error = "Error al evaluar publicabilidad (" & m_Riesgo.CodigoRiesgo & "): " & m_ErrorLocal
+            Err.Raise 1000
+        End If
+
+        Select Case m_Veredicto
+            Case EnumPublicabilidadVeredicto.Publicable
+                m_Pub = m_Pub + 1
+            Case EnumPublicabilidadVeredicto.NoPublicable
+                m_NoPub = m_NoPub + 1
+                m_EdicionPublicable = False
+            Case Else
+                m_NoAplica = m_NoAplica + 1
+        End Select
+
+        m_RiesgosArr.Add ConstruirRiesgoJSON_Publicabilidad(m_Riesgo, m_Veredicto, m_Checks)
+
+        Set m_Checks = Nothing
+        Set m_Riesgo = Nothing
+    Next
+
+    Set m_EdicionJSON = New Scripting.Dictionary
+    m_EdicionJSON.CompareMode = TextCompare
+    m_EdicionJSON.Add "idEdicion", p_Edicion.IDEdicion
+    m_EdicionJSON.Add "nombre", p_Edicion.Edicion
+    m_EdicionJSON.Add "proyecto", Nz(p_Edicion.Proyecto.NombreProyecto, Nz(p_Edicion.Proyecto.Proyecto, ""))
+
+    Set m_Resumen = New Scripting.Dictionary
+    m_Resumen.CompareMode = TextCompare
+    m_Resumen.Add "total", m_Total
+    m_Resumen.Add "publicables", m_Pub
+    m_Resumen.Add "noPublicables", m_NoPub
+    m_Resumen.Add "noAplica", m_NoAplica
+    m_Resumen.Add "edicionPublicable", m_EdicionPublicable
+
+    Set m_Root = New Scripting.Dictionary
+    m_Root.CompareMode = TextCompare
+    m_Root.Add "edicion", m_EdicionJSON
+    m_Root.Add "resumen", m_Resumen
+    m_Root.Add "riesgos", m_RiesgosArr
+
+    m_JSON = ConvertToJson(m_Root, 2)
+    m_JSON = Replace(m_JSON, "</", "<\/")
+
+    m_HTML = ConstruirTemplateInformePublicabilidadEdicion()
+    m_HTML = Replace(m_HTML, "__DATA_JSON__", m_JSON)
+
+    m_URL = GuardarInformePublicabilidadEdicion_UTF8(p_Edicion, m_HTML, p_Error)
+    If p_Error <> "" Then
+        Err.Raise 1000
+    End If
+
+    If p_hWnd = 0 Then
+        On Error Resume Next
+        p_hWnd = Application.hWndAccessApp
+        On Error GoTo errores
+    End If
+
+    Ejecutar p_hWnd, "open", m_URL, "", "", 1
+    GenerarInformePublicabilidadEdicionInteractivoHTML = m_URL
+    Exit Function
+
+errores:
+    If Err.Number <> 1000 Then
+        p_Error = "Error en GenerarInformePublicabilidadEdicionInteractivoHTML: " & Err.Description
+    End If
+End Function
+
+Private Function ConstruirRiesgoJSON_Publicabilidad( _
+                                                    ByVal p_Riesgo As riesgo, _
+                                                    ByVal p_Veredicto As EnumPublicabilidadVeredicto, _
+                                                    ByVal p_Checks As Scripting.Dictionary _
+                                                    ) As Scripting.Dictionary
+
+    Dim m_R As Scripting.Dictionary
+    Dim m_ChecksArr As Collection
+    Dim m_Key As Variant
+    Dim m_Chk As Scripting.Dictionary
+
+    Set m_R = New Scripting.Dictionary
+    m_R.CompareMode = TextCompare
+    m_R.Add "idRiesgo", p_Riesgo.IDRiesgo
+    m_R.Add "codigo", p_Riesgo.CodigoRiesgo
+    m_R.Add "descripcion", p_Riesgo.DescripcionParaLista
+    m_R.Add "veredicto", TextoVeredictoPublicabilidad(p_Veredicto)
+
+    Set m_ChecksArr = New Collection
+    If Not p_Checks Is Nothing Then
+        For Each m_Key In p_Checks
+            Set m_Chk = p_Checks(m_Key)
+            m_ChecksArr.Add ConstruirCheckJSON(m_Chk)
+        Next
+    End If
+
+    m_R.Add "checks", m_ChecksArr
+    Set ConstruirRiesgoJSON_Publicabilidad = m_R
+End Function
+
+Private Function ConstruirCheckJSON(ByVal p_Check As Scripting.Dictionary) As Scripting.Dictionary
+    Dim m_O As Scripting.Dictionary
+    Dim m_Detalle As String
+    Dim m_Estado As EnumPublicabilidadCheckEstado
+
+    Set m_O = New Scripting.Dictionary
+    m_O.CompareMode = TextCompare
+
+    m_O.Add "id", CStr(p_Check("id"))
+    m_O.Add "texto", CStr(p_Check("texto"))
+    m_Estado = p_Check("estado")
+    m_O.Add "estado", TextoEstadoCheckPublicabilidad(m_Estado)
+    m_Detalle = ""
+    If p_Check.Exists("detalle") Then
+        m_Detalle = CStr(p_Check("detalle"))
+    End If
+    m_O.Add "detalle", m_Detalle
+
+    Set ConstruirCheckJSON = m_O
+End Function
+
+Private Function TextoVeredictoPublicabilidad(ByVal p_Veredicto As EnumPublicabilidadVeredicto) As String
+    Select Case p_Veredicto
+        Case EnumPublicabilidadVeredicto.Publicable
+            TextoVeredictoPublicabilidad = "Publicable"
+        Case EnumPublicabilidadVeredicto.NoPublicable
+            TextoVeredictoPublicabilidad = "NoPublicable"
+        Case Else
+            TextoVeredictoPublicabilidad = "NoAplica"
+    End Select
+End Function
+
+Private Function TextoEstadoCheckPublicabilidad(ByVal p_Estado As EnumPublicabilidadCheckEstado) As String
+    Select Case p_Estado
+        Case EnumPublicabilidadCheckEstado.Cumple
+            TextoEstadoCheckPublicabilidad = "Cumple"
+        Case EnumPublicabilidadCheckEstado.NoCumple
+            TextoEstadoCheckPublicabilidad = "NoCumple"
+        Case Else
+            TextoEstadoCheckPublicabilidad = "NoAplica"
+    End Select
+End Function
+
+Private Function GuardarInformePublicabilidadEdicion_UTF8( _
+                                                        ByVal p_Edicion As Edicion, _
+                                                        ByVal p_HTML As String, _
+                                                        ByRef p_Error As String _
+                                                        ) As String
+
+    Dim m_Ruta As String
+    Dim m_Stream As Object
+    Dim m_Nombre As String
+
+    On Error GoTo errores
+    p_Error = ""
+
+    m_Nombre = "Publicabilidad_Edicion_" & SanitizarNombreArchivo(Nz(p_Edicion.Proyecto.NombreProyecto, p_Edicion.Proyecto.Proyecto) & "_Ed_" & p_Edicion.Edicion)
+    m_Ruta = Environ$("TEMP") & "\" & m_Nombre & ".html"
+
+    Set m_Stream = CreateObject("ADODB.Stream")
+    m_Stream.Type = 2
+    m_Stream.Charset = "utf-8"
+    m_Stream.Open
+    m_Stream.WriteText p_HTML
+    m_Stream.SaveToFile m_Ruta, 2
+    m_Stream.Close
+
+    GuardarInformePublicabilidadEdicion_UTF8 = m_Ruta
+    Exit Function
+
+errores:
+    p_Error = "Error al guardar el HTML: " & Err.Description
+End Function
+
+Private Function SanitizarNombreArchivo(ByVal p_Texto As String) As String
+    Dim m_T As String
+    m_T = Nz(p_Texto, "")
+    m_T = Replace(m_T, "/", "_")
+    m_T = Replace(m_T, "\\", "_")
+    m_T = Replace(m_T, ":", "_")
+    m_T = Replace(m_T, "*", "_")
+    m_T = Replace(m_T, "?", "_")
+    m_T = Replace(m_T, "\"", "_")
+    m_T = Replace(m_T, "<", "_")
+    m_T = Replace(m_T, ">", "_")
+    m_T = Replace(m_T, "|", "_")
+    SanitizarNombreArchivo = m_T
+End Function
+
+Private Function ConstruirTemplateInformePublicabilidadEdicion() As String
+    Dim partes As Variant
+
+    partes = Array( _
+        "<!DOCTYPE html>", _
+        "<html lang='es'>", _
+        "<head>", _
+        "  <meta charset='UTF-8'>", _
+        "  <title>Gestión de Riesgos - Publicabilidad Edición</title>", _
+        "  <style>", _
+        "    :root { --tele-blue:#0066FF; --tele-white:#F2F4FF; --pure-white:#FFFFFF; --grey-9:#031A34; --grey-6:#58617A; --grey-2:#D1D5E4; }", _
+        "    body { font-family:'Segoe UI', Arial, sans-serif; background-color:var(--tele-white); color:var(--grey-6); margin:0; }", _
+        "    header { background-color:var(--tele-blue); color:white; padding:25px 0; border-bottom:4px solid #0055D4; }", _
+        "    .container { max-width:1200px; margin:0 auto; padding:0 24px; }", _
+        "    .header-container { display:flex; justify-content:space-between; align-items:center; gap:18px; }", _
+        "    .header-text h1 { font-size:26px; margin:0; font-weight:800; }", _
+        "    .header-text p { margin:0; opacity:0.85; font-size:14px; }", _
+        "    .header-info { text-align:right; }", _
+        "    .main-container { margin-top:35px; padding-bottom:60px; }", _
+        "    .card { background:white; padding:18px; border-radius:18px; border:1px solid var(--grey-2); }", _
+        "    h2 { color:var(--grey-9); border-bottom:2px solid var(--tele-blue); padding-bottom:8px; margin:0 0 14px 0; }", _
+        "    .verdict-card { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-bottom:14px; }", _
+        "    .verdict-badge { padding:8px 14px; border-radius:999px; font-weight:bold; font-size:12px; letter-spacing:0.5px; text-transform:uppercase; }", _
+        "    .verdict-publicable { background:#E8F5E9; color:#1B5E20; }", _
+        "    .verdict-no-publicable { background:#FFEBEE; color:#B71C1C; }", _
+        "    .verdict-no-aplica { background:#ECEFF1; color:#455A64; }", _
+        "    .checklist { display:grid; gap:12px; }", _
+        "    .check-item { border:1px solid var(--grey-2); border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }", _
+        "    .check-left { flex:1; }", _
+        "    .check-text { font-weight:600; color:var(--grey-9); }", _
+        "    .check-detail { margin-top:4px; font-size:12px; color:var(--grey-6); }", _
+        "    .check-state { font-size:11px; font-weight:bold; padding:4px 8px; border-radius:999px; text-transform:uppercase; white-space:nowrap; }", _
+        "    .state-cumple { background:#E8F5E9; color:#1B5E20; }", _
+        "    .state-no-cumple { background:#FFEBEE; color:#B71C1C; }", _
+        "    .state-no-aplica { background:#ECEFF1; color:#455A64; }", _
+        "    .layout { display:grid; grid-template-columns: 360px 1fr; gap:18px; align-items:start; }", _
+        "    @media (max-width: 980px) { .layout { grid-template-columns:1fr; } }", _
+        "    .sidebar { position:sticky; top:16px; }", _
+        "    .sidebar-top { display:grid; gap:10px; margin-bottom:12px; }", _
+        "    .search { width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:1px solid var(--grey-2); outline:none; }", _
+        "    .filters { display:flex; flex-wrap:wrap; gap:8px; }", _
+        "    .chip { border:1px solid var(--grey-2); background:#F3F5FC; padding:8px 10px; border-radius:999px; cursor:pointer; font-weight:700; font-size:12px; color:var(--grey-6); }", _
+        "    .chip.active { background:var(--pure-white); color:var(--tele-blue); border-color:var(--tele-blue); }", _
+        "    .risk-list { display:grid; gap:10px; }", _
+        "    .risk-item { border:1px solid var(--grey-2); border-radius:14px; padding:12px; cursor:pointer; background:white; display:grid; gap:6px; }", _
+        "    .risk-item.active { outline:2px solid var(--tele-blue); border-color:transparent; }", _
+        "    .risk-head { display:flex; justify-content:space-between; gap:10px; align-items:center; }", _
+        "    .risk-code { font-weight:800; color:var(--grey-9); }", _
+        "    .risk-desc { font-size:12px; color:var(--grey-6); line-height:1.35; }", _
+        "    .mini-badge { padding:4px 8px; border-radius:999px; font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:0.4px; }", _
+        "    .mini-publicable { background:#E8F5E9; color:#1B5E20; }", _
+        "    .mini-no-publicable { background:#FFEBEE; color:#B71C1C; }", _
+        "    .mini-no-aplica { background:#ECEFF1; color:#455A64; }", _
+        "    footer { text-align:center; padding:40px; color:var(--grey-6); font-size:12px; }", _
+        "  </style>", _
+        "</head>", _
+        "<body>", _
+        "  <header>", _
+        "    <div class='container header-container'>", _
+        "      <div class='header-text'>", _
+        "        <h1>GESTIÓN DE RIESGOS - Publicabilidad</h1>", _
+        "        <p>Informe interactivo por edición</p>", _
+        "      </div>", _
+        "      <div class='header-info'>", _
+        "        <p style='margin:0;'><strong id='hdrProyecto'>-</strong></p>", _
+        "        <p style='margin:0;'>Fecha: <span id='hdrFecha'>-</span></p>", _
+        "      </div>", _
+        "    </div>", _
+        "  </header>", _
+        "  <div class='container main-container'>", _
+        "    <div class='layout'>", _
+        "      <div class='sidebar'>", _
+        "        <div class='card sidebar-top'>", _
+        "          <div class='verdict-card'>", _
+        "            <div>", _
+        "              <div style='font-weight:800;color:var(--grey-9);'>Edición</div>", _
+        "              <div style='font-size:13px;color:var(--grey-6);' id='lblEdicion'>-</div>", _
+        "              <div style='font-size:12px;color:var(--grey-6);margin-top:6px;' id='lblResumen'>-</div>", _
+        "            </div>", _
+        "            <div class='verdict-badge' id='badgeEdicion'>-</div>", _
+        "          </div>", _
+        "          <input id='txtBuscar' class='search' placeholder='Buscar por código o texto...' />", _
+        "          <div class='filters'>", _
+        "            <button class='chip active' data-filter='Todos'>Todos</button>", _
+        "            <button class='chip' data-filter='Publicable'>Publicables</button>", _
+        "            <button class='chip' data-filter='NoPublicable'>No publicables</button>", _
+        "            <button class='chip' data-filter='NoAplica'>No aplica</button>", _
+        "          </div>", _
+        "        </div>", _
+        "        <div class='risk-list' id='riskList'></div>", _
+        "      </div>", _
+        "      <div class='detail'>", _
+        "        <div class='card' id='detailPanel'>", _
+        "          <h2>Selecciona un riesgo</h2>", _
+        "          <div style='color:var(--grey-6);'>Pulsa en un riesgo de la lista izquierda para ver sus comprobaciones.</div>", _
+        "        </div>", _
+        "      </div>", _
+        "    </div>", _
+        "  </div>", _
+        "  <footer><p>© <span id='hdrYear'></span> Telefónica - Aplicación GESTIÓN DE RIESGOS</p></footer>", _
+        "  <script id='data' type='application/json'>__DATA_JSON__</script>", _
+        "  <script>", _
+        "    function estadoClass(estado) { if (estado === 'Cumple') return 'state-cumple'; if (estado === 'NoCumple') return 'state-no-cumple'; return 'state-no-aplica'; }", _
+        "    function veredictoClase(ver) { if (ver === 'Publicable') return 'verdict-publicable'; if (ver === 'NoPublicable') return 'verdict-no-publicable'; return 'verdict-no-aplica'; }", _
+        "    function veredictoTexto(ver) { if (ver === 'Publicable') return 'Publicable'; if (ver === 'NoPublicable') return 'No publicable'; return 'No aplica'; }", _
+        "    function miniClase(ver) { if (ver === 'Publicable') return 'mini-badge mini-publicable'; if (ver === 'NoPublicable') return 'mini-badge mini-no-publicable'; return 'mini-badge mini-no-aplica'; }", _
+        "    function safe(s) { s = (s ?? '').toString(); return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\"','&quot;'); }", _
+        "    const data = JSON.parse(document.getElementById('data').textContent || '{}');", _
+        "    const riesgosAll = Array.isArray(data.riesgos) ? data.riesgos : [];", _
+        "    let filtro = 'Todos'; let q = ''; let seleccionado = null;", _
+        "    function aplicarFiltros(r) { const texto = ((r.codigo||'') + ' ' + (r.descripcion||'')).toLowerCase(); const okQ = q.length === 0 || texto.includes(q); const okF = filtro === 'Todos' || (filtro === 'Publicable' && r.veredicto === 'Publicable') || (filtro === 'NoPublicable' && r.veredicto === 'NoPublicable') || (filtro === 'NoAplica' && r.veredicto === 'NoAplica'); return okQ && okF; }", _
+        "    function renderCabecera() { const ed = data.edicion || {}; const res = data.resumen || {}; document.getElementById('hdrProyecto').textContent = (ed.proyecto || '-') + ' / ' + (ed.nombre || '-'); document.getElementById('hdrFecha').textContent = new Date().toLocaleDateString('es-ES'); document.getElementById('hdrYear').textContent = new Date().getFullYear().toString(); document.getElementById('lblEdicion').textContent = (ed.proyecto || '-') + ' · ' + (ed.nombre || '-'); document.getElementById('lblResumen').textContent = 'Total: ' + (res.total ?? 0) + ' · Publicables: ' + (res.publicables ?? 0) + ' · No publicables: ' + (res.noPublicables ?? 0) + ' · No aplica: ' + (res.noAplica ?? 0); const badge = document.getElementById('badgeEdicion'); const edPub = !!res.edicionPublicable; badge.className = 'verdict-badge ' + (edPub ? 'verdict-publicable' : 'verdict-no-publicable'); badge.textContent = edPub ? 'Publicable' : 'No publicable'; }", _
+        "    function renderLista() { const cont = document.getElementById('riskList'); cont.innerHTML = ''; const riesgos = riesgosAll.filter(aplicarFiltros); if (riesgos.length === 0) { cont.innerHTML = "<div class='card'>No hay riesgos que coincidan con el filtro.</div>"; return; } for (const r of riesgos) { const div = document.createElement('div'); div.className = 'risk-item' + (seleccionado && seleccionado.idRiesgo === r.idRiesgo ? ' active' : ''); div.dataset.id = r.idRiesgo; div.innerHTML = "<div class='risk-head'><div class='risk-code'>" + safe(r.codigo) + "</div><div class='" + miniClase(r.veredicto) + "'>" + safe(veredictoTexto(r.veredicto)) + "</div></div><div class='risk-desc'>" + safe(r.descripcion || '') + "</div>"; div.addEventListener('click', () => seleccionar(r.idRiesgo)); cont.appendChild(div); } }", _
+        "    function renderDetalle(r) { const panel = document.getElementById('detailPanel'); if (!r) { panel.innerHTML = "<h2>Selecciona un riesgo</h2><div style='color:var(--grey-6);'>Pulsa en un riesgo de la lista izquierda para ver sus comprobaciones.</div>"; return; } const verClase = veredictoClase(r.veredicto); const verText = veredictoTexto(r.veredicto); const checks = Array.isArray(r.checks) ? r.checks : []; let html = ''; html += "<div class='card verdict-card'>"; html += "<div><h2 style='margin:0 0 6px 0;'>Publicabilidad</h2><div style='color:var(--grey-6); font-size:13px;'><strong>" + safe(r.codigo) + "</strong> · " + safe(r.descripcion || '') + "</div></div>"; html += "<div class='verdict-badge " + verClase + "'>" + safe(verText) + "</div>"; html += "</div>"; html += "<div class='checklist'>"; for (const c of checks) { const est = (c.estado || 'NoAplica'); const det = (c.detalle || ''); html += "<div class='check-item'>"; html += "<div class='check-left'><div class='check-text'>" + safe(c.texto || '') + "</div>"; if (det) html += "<div class='check-detail'>" + safe(det) + "</div>"; html += "</div>"; html += "<div class='check-state " + estadoClass(est) + "'>" + safe(est === 'NoCumple' ? 'No cumple' : (est === 'Cumple' ? 'Cumple' : 'No aplica')) + "</div>"; html += "</div>"; } html += "</div>"; panel.innerHTML = html; }", _
+        "    function seleccionar(idRiesgo) { const r = riesgosAll.find(x => x.idRiesgo === idRiesgo) || null; seleccionado = r; renderLista(); renderDetalle(r); if (r && r.idRiesgo) location.hash = 'riesgo-' + encodeURIComponent(r.idRiesgo); }", _
+        "    document.getElementById('txtBuscar').addEventListener('input', (e) => { q = (e.target.value || '').trim().toLowerCase(); renderLista(); });", _
+        "    for (const btn of document.querySelectorAll('.chip')) { btn.addEventListener('click', () => { for (const b of document.querySelectorAll('.chip')) b.classList.remove('active'); btn.classList.add('active'); filtro = btn.dataset.filter || 'Todos'; renderLista(); }); }", _
+        "    renderCabecera(); renderLista(); if (location.hash && location.hash.startsWith('#riesgo-')) { const id = decodeURIComponent(location.hash.substring('#riesgo-'.length)); seleccionar(id); }", _
+        "  </script>", _
+        "</body>", _
+        "</html>" _
+    )
+
+    ConstruirTemplateInformePublicabilidadEdicion = Join(partes, vbCrLf)
+End Function
+

@@ -1,0 +1,770 @@
+﻿BD: C:\Users\adm1\Telefonica\Aplicaciones_dys.TMETF - Aplicaciones PpD\GESTION RIESGOS\Versiones\2025-035\src\Gestion_Riesgos_Datos.accdb
+Generado: 12/30/2025 10:06:57
+Proveedor: DAO
+Modo: Solo locales
+
+== Tablas ==
+Tabla: ProyectoRespCalidad [Local]
+  Campos:
+    - Proyecto: Text (255)
+    - UsuarioCalidad: Text (255)
+
+Tabla: TbAnexos [Local]
+  Campos:
+    - IDAnexo: Long (4)
+    - IDProyecto: Long (4)
+    - IDEdicion: Long (4)
+    - IDRiesgo: Long (4)
+    - FechaAnexo: DateTime (8)
+    - Titulo: Text (255)
+    - NombreArchivo: Text (255)
+    - EvidenciaUTE: Text (2)
+    - EvidenciaSuministrador: Text (2)
+  PK: IDAnexo
+
+Tabla: TbAnexosAntigua [Local]
+  Campos:
+    - IDAnexo: Long (4)
+    - IDProyecto: Long (4)
+    - IDEdicion: Long (4)
+    - FechaAnexo: DateTime (8)
+    - CodigoUnico: Text (255)
+    - Titulo: Text (255)
+    - Descripcion: Memo 
+    - NombreArchivo: Text (255)
+    - EvidenciaUTE: Text (2)
+  PK: IDAnexo
+
+Tabla: TbArbolCacheMeta [Local]
+  Campos:
+    - IDEdicion: Long (4)
+    - CacheSetIdActivo: Long (4)
+    - BuiltAt: DateTime (8)
+    - BuildMs: Long (4)
+    - Estado: Text (20)
+  PK: IDEdicion
+
+Tabla: TbAux [Local]
+  Campos:
+    - IDProyecto: Long (4)
+  PK: IDProyecto
+
+Tabla: TbAuxProyectosRiesgos [Local]
+  Campos:
+    - IDProyecto: Long (4)
+    - Riesgo: Text (255)
+    - FechaDetectado: DateTime (8)
+    - NombreProyectoCompleto: Text (255)
+    - FechaMaterializado: DateTime (8)
+
+Tabla: TbBibliotecaRiesgos [Local]
+  Campos:
+    - IDRiesgoTipo: Long (4)
+    - CODIGO: Text (255)
+    - Tipo: Text (255)
+    - Descripcion: Memo 
+    - Usuario: Text (255)
+    - FechaAlta: DateTime (8)
+    - FechaModificacion: DateTime (8)
+    - Familia: Text (255)
+    - Activo: Text (2)
+  PK: IDRiesgoTipo
+
+Tabla: TbCacheArbolRiesgosMeta [Local]
+  Campos:
+    - IDEdicion: Long (4)
+    - ActiveBuildId: Long (4)
+    - UpdatedAt: DateTime (8)
+
+Tabla: TbCacheArbolRiesgosNodo [Local]
+  Campos:
+    - IDEdicion: Long (4)
+    - BuildId: Long (4)
+    - NodeKey: Text (255)
+    - ParentKey: Text (255)
+    - NodeType: Text (30)
+    - IDRiesgo: Long (4)
+    - IDMitigacion: Long (4)
+    - IDContingencia: Long (4)
+    - IDAccion: Long (4)
+    - EsVisibleSinRetirados: Boolean (1)
+    - TextConDescripcion: Memo 
+    - TextSinDescripcion: Memo 
+    - IconName: Text (255)
+    - ForeColor: Long (4)
+    - SortIndex: Long (4)
+    - Depth: Long (4)
+  PK: IDEdicion, BuildId, NodeKey
+
+Tabla: TbCacheControlCambiosMeta [Local]
+  Campos:
+    - IDProyecto: Long (4)
+    - Edicion: Long (4)
+    - ActiveBuildId: Long (4)
+    - UpdatedAt: DateTime (8)
+    - CacheVersion: Text (20)
+  PK: IDProyecto, Edicion
+
+Tabla: TbCacheControlCambiosRow [Local]
+  Campos:
+    - IDProyecto: Long (4)
+    - Edicion: Long (4)
+    - BuildId: Long (4)
+    - CodigoRiesgo: Text (50)
+    - EstadoHtml: Memo 
+    - MitigacionHtml: Memo 
+    - ContingenciaHtml: Memo 
+
+Tabla: TbCachePublicabilidadEdicion [Local]
+  Campos:
+    - IDEdicion: Long (4)
+    - Tipo: Text (10)
+    - IDRiesgo: Long (4)
+    - Publicable: Boolean (1)
+    - Veredicto: Memo 
+    - AlgoritmoVersion: Long (4)
+    - UpdatedAt: DateTime (8)
+    - ChecksJson: Memo 
+    - CodigoRiesgo: Text (255)
+    - Descripcion: Memo 
+
+Tabla: tbCambios [Local]
+  Campos:
+    - IDCambio: Long (4)
+    - IDProyecto: Long (4)
+    - EdicionInicial: Integer (2)
+    - EdicionFinal: Integer (2)
+    - Riesgo: Text (255)
+    - NombreCampo: Text (255)
+    - Descripcion: Memo 
+    - FechaRegistro: DateTime (8)
+  PK: IDCambio
+
+Tabla: TbCambiosExplicacion [Local]
+  Campos:
+    - Apartado: Text (255)
+    - Explicacion: Memo 
+  PK: Apartado
+
+Tabla: tbCambiosParaPublicacion [Local]
+  Campos:
+    - IDCambio: Long (4)
+    - IDProyecto: Long (4)
+    - EdicionInicial: Integer (2)
+    - EdicionFinal: Integer (2)
+    - Riesgo: Text (255)
+    - NombreCampo: Text (255)
+    - Descripcion: Memo 
+    - FechaRegistro: DateTime (8)
+  PK: IDCambio
+
+Tabla: TbConfiguracionVisionRiesgos [Local]
+  Campos:
+    - IDConfiguracion: Long (4)
+    - Usuario: Text (255)
+    - VerSoloNoRetirados: Text (2)
+    - VerDescripcion: Text (2)
+  PK: IDConfiguracion
+
+Tabla: TbExplicacionCarencias [Local]
+  Campos:
+    - ID: Long (4)
+    - Apartado: Text (255)
+    - Explicacion: Memo 
+  PK: ID
+
+Tabla: TbHerramientaDocAyuda [Local]
+  Campos:
+    - NombreFormulario: Text (255)
+    - NombreArchivoAyuda: Text (255)
+  PK: NombreFormulario, NombreArchivoAyuda
+
+Tabla: TbIDAccionPlanContingencia [Local]
+  Campos:
+    - IDAccionContingencia: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDAccionContingencia
+
+Tabla: TbIDAccionPlanMitigacion [Local]
+  Campos:
+    - IDAccionMitigacion: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDAccionMitigacion
+
+Tabla: TbIDAnexos [Local]
+  Campos:
+    - IDAnexo: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDAnexo
+
+Tabla: TbIDBibliotecaRiesgos [Local]
+  Campos:
+    - IDRiesgoTipo: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDRiesgoTipo
+
+Tabla: TbIDCorreosEnviados [Local]
+  Campos:
+    - IDCorreo: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDCorreo
+
+Tabla: TbIDDocumentos [Local]
+  Campos:
+    - IDDocumento: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDDocumento
+
+Tabla: TbIDEdiciones [Local]
+  Campos:
+    - IDEdicion: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDEdicion
+
+Tabla: TbIDLog [Local]
+  Campos:
+    - IDLog: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDLog
+
+Tabla: TbIDPlanContingencia [Local]
+  Campos:
+    - IDContingencia: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDContingencia
+
+Tabla: TbIDPlanMitigacion [Local]
+  Campos:
+    - IDMitigacion: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDMitigacion
+
+Tabla: TbIDProyectos [Local]
+  Campos:
+    - IDProyecto: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDProyecto
+
+Tabla: TbIDRiesgos [Local]
+  Campos:
+    - IDRiesgo: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDRiesgo
+
+Tabla: TbIDRiesgosAIntegrar [Local]
+  Campos:
+    - IDRiesgoExt: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDRiesgoExt
+
+Tabla: TbIDTareas [Local]
+  Campos:
+    - IDtarea: Long (4)
+    - UsuarioCrea: Text (255)
+    - FechaCreacion: DateTime (8)
+    - FechaEliminacion: DateTime (8)
+    - UsuarioElimina: Text (255)
+  PK: IDtarea
+
+Tabla: TbLog [Local]
+  Campos:
+    - IDLog: Long (4)
+    - IDProyecto: Long (4)
+    - IDEdicion: Long (4)
+    - IDRiesgo: Long (4)
+    - IDMitigacion: Long (4)
+    - IDContingencia: Long (4)
+    - IDAccionMitigacion: Long (4)
+    - IDAccionContingencia: Long (4)
+    - Usuario: Text (255)
+    - Fecha: DateTime (8)
+    - Titulo: Text (255)
+    - Linea: Memo 
+  PK: IDLog
+
+Tabla: TbLogPublicaciones [Local]
+  Campos:
+    - ID: Long (4)
+    - IDEdicion: Long (4)
+    - FechaPreparadaParaPublicar: DateTime (8)
+    - UsuarioFechaPreparadaParaPublicar: Text (255)
+    - FechaPreparadaParaPublicarQuitar: DateTime (8)
+    - UsuarioFechaPreparadaParaPublicarQuitar: Text (255)
+    - FechaPublicacion: DateTime (8)
+    - UsuarioFechaPublicacion: Text (255)
+    - PropuestaRechazadaPorCalidadFecha: DateTime (8)
+    - PropuestaRechazadaPorCalidadMotivo: Memo 
+    - FechaRegistro: DateTime (8)
+  PK: ID
+
+Tabla: TbOrigenesRiesgosDetalles [Local]
+  Campos:
+    - Origen: Text (255)
+    - Descripcion: Memo 
+  PK: Origen
+
+Tabla: TbProyectoEdicionesCorreoRevision [Local]
+  Campos:
+    - IDEnvioCorreoTecnico: Long (4)
+    - IDEdicion: Long (4)
+    - FechaCorreoRevision: DateTime (8)
+    - UsuarioCalidad: Text (255)
+    - IDCorreo: Long (4)
+  PK: IDEnvioCorreoTecnico
+
+Tabla: TbProyectos [Local]
+  Campos:
+    - IDProyecto: Long (4)
+    - IDExpediente: Long (4)
+    - Proyecto: Text (255)
+    - Juridica: Text (255)
+    - NombreProyecto: Text (255)
+    - Cliente: Text (255)
+    - FechaPrevistaCierre: DateTime (8)
+    - FechaCierre: DateTime (8)
+    - FechaRegistroInicial: DateTime (8)
+    - Elaborado: Text (255)
+    - Revisado: Text (255)
+    - Aprobado: Text (255)
+    - CodigoDocumento: Text (255)
+    - ParaInformeAvisos: Text (2)
+    - FechaFirmaContrato: Text (255)
+    - RiesgosDeLaOferta: Text (2)
+    - RiesgosDelSubContratista: Text (2)
+    - NombreUsuarioCalidad: Text (255)
+    - EnUTE: Text (2)
+    - FechaMaxProximaPublicacion: DateTime (8)
+    - RequiereRiesgoDeBiblioteca: Text (2)
+    - CorreoRAC: Text (255)
+    - Ordinal: Long (4)
+    - CadenaNombreAutorizados: Memo 
+    - NombreParaNodo: Text (255)
+  PK: IDProyecto
+
+Tabla: TbProyectosEdiciones [Local]
+  Campos:
+    - IDEdicion: Long (4)
+    - IDProyecto: Long (4)
+    - FechaEdicion: DateTime (8)
+    - Edicion: Integer (2)
+    - Elaborado: Text (255)
+    - Revisado: Text (255)
+    - Aprobado: Text (255)
+    - FechaPublicacion: DateTime (8)
+    - EntregadoAClienteORAC: Text (2)
+    - Comentarios: Memo 
+    - PermitidoImprimirExcel: Text (2)
+    - IDDocumentoAGEDO: Long (4)
+    - NombreArchivoInforme: Text (255)
+    - FechaMaxProximaPublicacion: DateTime (8)
+    - FechaPreparadaParaPublicar: DateTime (8)
+    - UsuarioProponePublicar: Text (255)
+    - PropuestaRechazadaPorCalidadFecha: DateTime (8)
+    - PropuestaRechazadaPorCalidadMotivo: Memo 
+    - UsuarioCalidadRechazaPropuesta: Text (255)
+    - NotasCalidadParaPublicar: Memo 
+    - FechaUltimoCambio: DateTime (8)
+    - UsuarioUltimoCambio: Text (255)
+  PK: IDEdicion
+
+Tabla: TbProyectosEdicionesSuministradores [Local]
+  Campos:
+    - ID: Long (4)
+    - IDEdicion: Long (4)
+    - IDSuministrador: Long (4)
+    - IDAnexo: Long (4)
+  PK: ID
+
+Tabla: TbProyectosEdicionesSuministradores1 [Local]
+  Campos:
+    - ID: Long (4)
+    - IDEdicion: Long (4)
+    - Suministrador: Text (255)
+    - IDAnexo: Long (4)
+  PK: ID
+
+Tabla: TbProyectosResponsablesCalidad [Local]
+  Campos:
+    - IDProyecto: Long (4)
+    - UsuarioCalidad: Text (255)
+  PK: IDProyecto
+
+Tabla: TbProyectosSuministradores [Local]
+  Campos:
+    - ID: Long (4)
+    - IDProyecto: Long (4)
+    - IDSuministrador: Long (4)
+    - GestionCalidad: Text (2)
+  PK: ID
+
+Tabla: TbProyectosSuministradores1 [Local]
+  Campos:
+    - ID: Long (4)
+    - IDProyecto: Long (4)
+    - Suministrador: Text (255)
+    - GestionCalidad: Text (2)
+  PK: ID
+
+Tabla: TbProyectosTipo [Local]
+  Campos:
+    - IDTipoProyecto: Long (4)
+    - TipoProyecto: Text (255)
+    - Descripcion: Memo 
+  PK: IDTipoProyecto
+
+Tabla: TbRiesgos [Local]
+  Campos:
+    - IDRiesgo: Long (4)
+    - IDEdicion: Long (4)
+    - CodigoUnico: Text (255)
+    - CodigoRiesgo: Text (5)
+    - FechaDetectado: DateTime (8)
+    - DetectadoPor: Text (255)
+    - EntidadDetecta: Text (255)
+    - Plazo: Text (255)
+    - Calidad: Text (255)
+    - Coste: Text (255)
+    - ImpactoGlobal: Text (15)
+    - Vulnerabilidad: Text (15)
+    - Valoracion: Text (15)
+    - Mitigacion: Text (15)
+    - Contingencia: Text (15)
+    - RequierePlanContingencia: Text (2)
+    - Descripcion: Memo 
+    - CausaRaiz: Memo 
+    - Estado: Text (255)
+    - FechaEstado: Text (255)
+    - Priorizacion: Integer (2)
+    - FechaMaterializado: DateTime (8)
+    - FechaRetirado: DateTime (8)
+    - FechaCerrado: DateTime (8)
+    - FechaMitigacionAceptar: DateTime (8)
+    - JustificacionAceptacionRiesgo: Memo 
+    - FechaJustificacionAceptacionRiesgo: DateTime (8)
+    - FechaAprobacionAceptacionPorCalidad: DateTime (8)
+    - FechaRechazoAceptacionPorCalidad: DateTime (8)
+    - JustificacionRetiroRiesgo: Memo 
+    - FechaJustificacionRetiroRiesgo: DateTime (8)
+    - FechaAprobacionRetiroPorCalidad: DateTime (8)
+    - FechaRechazoRetiroPorCalidad: DateTime (8)
+    - RequiereRiesgoDeBiblioteca: Text (2)
+    - CodRiesgoBiblioteca: Text (255)
+    - RiesgoPendienteRetipificacion: Text (2)
+    - FechaRiesgoParaRetipificar: DateTime (8)
+    - FechaRiesgoRetipificado: DateTime (8)
+    - DiasSinRespuestaCalidadAceptacion: Text (255)
+    - DiasSinRespuestaCalidadRetiro: Text (255)
+    - DiasSinRespuestaCalidadRetipificacion: Text (255)
+    - Origen: Text (255)
+    - HayErrorEnRiesgo: Text (255)
+    - NombreNodoDesc: Text (255)
+    - NombreNodoEstado: Text (255)
+    - NombreIcono: Text (255)
+    - ColorIcono: Text (255)
+  PK: IDRiesgo
+
+Tabla: TbRiesgosAIntegrar [Local]
+  Campos:
+    - IDRiesgoExt: Long (4)
+    - CodRiesgo: Text (255)
+    - IDRiesgo: Long (4)
+    - Origen: Text (255)
+    - IDEdicion: Long (4)
+    - Descripcion: Memo 
+    - CausaRaiz: Text (255)
+    - FechaDetectado: DateTime (8)
+    - FechaAltaRegistro: DateTime (8)
+    - UsuarioRegistra: Text (255)
+    - MotivoNoIntegrado: Memo 
+    - FechaMotivo: DateTime (8)
+    - Trasladar: Text (2)
+    - Suministrador: Text (255)
+    - Pedido: Text (255)
+    - ProveedorPedido: Text (255)
+    - CausaRiesgoPedido: Memo 
+    - RequiereRiesgoDeBiblioteca: Text (2)
+    - CodRiesgoBiblioteca: Text (255)
+    - RiesgoPendienteRetipificacion: Text (2)
+  PK: IDRiesgoExt
+
+Tabla: TbRiesgosAreasImpacto [Local]
+  Campos:
+    - Tipo: Text (255)
+    - Indice: Text (255)
+    - Descripcion: Memo 
+    - ordinal: Byte (1)
+  PK: Tipo, Indice
+
+Tabla: TbRiesgosMaterializaciones [Local]
+  Campos:
+    - ID: Long (4)
+    - IDProyecto: Long (4)
+    - CodigoRiesgo: Text (5)
+    - Fecha: DateTime (8)
+    - IDEdicion: Long (4)
+    - EsMaterializacion: Text (2)
+    - IDNC: Long (4)
+    - ParaNC: Text (2)
+    - FechaDecison: DateTime (8)
+    - Estado: Text (255)
+  PK: ID
+
+Tabla: TbRiesgosNC [Local]
+  Campos:
+    - ID: Long (4)
+    - IDRiesgo: Long (4)
+    - IDNC: Long (4)
+    - FechaRegistro: DateTime (8)
+    - ParaNC: Text (2)
+    - FechaDecison: DateTime (8)
+  PK: ID
+
+Tabla: TbRiesgosPlanContingenciaDetalle [Local]
+  Campos:
+    - IDAccionContingencia: Long (4)
+    - IDContingencia: Long (4)
+    - CodAccion: Text (255)
+    - Accion: Memo 
+    - ResponsableAccion: Text (255)
+    - FechaInicio: DateTime (8)
+    - FechaFinPrevista: DateTime (8)
+    - FechaFinReal: DateTime (8)
+    - EsUltimaAccion: Text (2)
+    - Estado: Text (255)
+    - NombreIcono: Text (255)
+  PK: IDAccionContingencia
+
+Tabla: TbRiesgosPlanContingenciaDetalleReversa [Local]
+  Campos:
+    - IDAccionContingencia: Long (4)
+    - IDEdicion: Long (4)
+    - FechaInicio: DateTime (8)
+    - FechaFinPrevista: DateTime (8)
+    - FechaFinReal: DateTime (8)
+    - Estado: Text (255)
+  PK: IDAccionContingencia
+
+Tabla: TbRiesgosPlanContingenciaPpal [Local]
+  Campos:
+    - IDContingencia: Long (4)
+    - IDRiesgo: Long (4)
+    - CodContingencia: Text (255)
+    - DisparadorDelPlan: Memo 
+    - FechaDeActivacion: DateTime (8)
+    - FechaDesactivacion: DateTime (8)
+    - Estado: Text (255)
+    - NombreIcono: Text (255)
+  PK: IDContingencia
+
+Tabla: TbRiesgosPlanMitigacionDetalle [Local]
+  Campos:
+    - IDAccionMitigacion: Long (4)
+    - IDMitigacion: Long (4)
+    - CodAccion: Text (255)
+    - Accion: Memo 
+    - ResponsableAccion: Text (255)
+    - FechaInicio: DateTime (8)
+    - FechaFinPrevista: DateTime (8)
+    - FechaFinReal: DateTime (8)
+    - EsUltimaAccion: Text (2)
+    - Estado: Text (255)
+    - NombreIcono: Text (255)
+  PK: IDAccionMitigacion
+
+Tabla: TbRiesgosPlanMitigacionDetalleReversa [Local]
+  Campos:
+    - IDAccionMitigacion: Long (4)
+    - IDEdicion: Long (4)
+    - FechaInicio: DateTime (8)
+    - FechaFinPrevista: DateTime (8)
+    - FechaFinReal: DateTime (8)
+    - Estado: Text (255)
+  PK: IDAccionMitigacion
+
+Tabla: TbRiesgosPlanMitigacionPpal [Local]
+  Campos:
+    - IDMitigacion: Long (4)
+    - IDRiesgo: Long (4)
+    - CodMitigacion: Text (255)
+    - DisparadorDelPlan: Memo 
+    - FechaDeActivacion: DateTime (8)
+    - FechaDesactivacion: DateTime (8)
+    - Estado: Text (255)
+    - NombreIcono: Text (255)
+  PK: IDMitigacion
+
+Tabla: TbRiesgosPorTipoProyecto [Local]
+  Campos:
+    - IDTipoProyecto: Long (4)
+    - IDCatalogoRiesgo: Long (4)
+  PK: IDTipoProyecto, IDCatalogoRiesgo
+
+Tabla: TbRiesgosValoracion [Local]
+  Campos:
+    - Impacto: Text (255)
+    - Vulnerabilidad: Text (255)
+    - Valoracion: Text (255)
+
+Tabla: TbTablas [Local]
+  Campos:
+    - Nombre: Text (255)
+    - Orden: Long (4)
+    - Origen: Text (255)
+    - NombreTablaOrigenID: Text (255)
+    - NombreID1: Text (255)
+    - NombreID2: Text (255)
+    - TablaID: Text (255)
+    - EsTablaID: Text (2)
+    - RequiereID: Text (2)
+  PK: Nombre
+
+Tabla: TbTareas [Local]
+  Campos:
+    - IDtarea: Long (4)
+    - IDProyecto: Long (4)
+    - IDRiesgo: Long (4)
+    - CodRiesgo: Text (255)
+    - TipoTarea: Text (255)
+    - EstadoTarea: Text (255)
+    - FechaAccion: DateTime (8)
+    - FechaJustificacion: DateTime (8)
+    - Justificacion: Memo 
+    - FechaVisado: DateTime (8)
+    - FechaRechazo: DateTime (8)
+  PK: IDtarea
+
+Tabla: TbTareasExplicaciones [Local]
+  Campos:
+    - NodoTarea: Text (255)
+    - TituloTarea: Text (255)
+    - Explicacion: Memo 
+  PK: NodoTarea
+
+Tabla: TbUltimoProyecto [Local]
+  Campos:
+    - IDUltimoProyecto: Long (4)
+    - IDProyecto: Long (4)
+    - Usuario: Text (255)
+    - Fecha: DateTime (8)
+  PK: IDUltimoProyecto
+
+Tabla: TbValoresPosiblesContingencia [Local]
+  Campos:
+    - Valores: Text (255)
+  PK: Valores
+
+Tabla: TbValoresPosiblesEstadoRiesgo [Local]
+  Campos:
+    - Valores: Text (255)
+  PK: Valores
+
+Tabla: TbValoresPosiblesMitigacion [Local]
+  Campos:
+    - Valores: Text (255)
+    - Explicacion: Memo 
+  PK: Valores
+
+Tabla: TbValoresPosiblesPlazoCalidadCosteVulnerabilidad [Local]
+  Campos:
+    - Valores: Text (255)
+  PK: Valores
+
+Tabla: TbValoresPosiblesValoracion [Local]
+  Campos:
+    - Valores: Text (255)
+  PK: Valores
+
+== Relaciones ==
+RelaciÃ³n: TbProyectos -> TbAnexosAntigua
+  Campos: IDProyecto -> IDProyecto
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbRiesgos -> TbRiesgosPlanContingenciaPpal
+  Campos: IDRiesgo -> IDRiesgo
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectosTipo -> TbRiesgosPorTipoProyecto
+  Campos: IDTipoProyecto -> IDTipoProyecto
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbRiesgos -> TbRiesgosPlanMitigacionPpal
+  Campos: IDRiesgo -> IDRiesgo
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectosEdiciones -> TbRiesgos
+  Campos: IDEdicion -> IDEdicion
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectos -> TbProyectosResponsablesCalidad
+  Campos: IDProyecto -> IDProyecto
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbRiesgosPlanContingenciaPpal -> TbRiesgosPlanContingenciaDetalle
+  Campos: IDContingencia -> IDContingencia
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbRiesgosPlanMitigacionPpal -> TbRiesgosPlanMitigacionDetalle
+  Campos: IDMitigacion -> IDMitigacion
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectos -> TbProyectosEdiciones
+  Campos: IDProyecto -> IDProyecto
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectosEdiciones -> TbLogPublicaciones
+  Campos: IDEdicion -> IDEdicion
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectosEdiciones -> TbProyectosEdicionesSuministradores
+  Campos: IDEdicion -> IDEdicion
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectosEdiciones -> TbRiesgosAIntegrar
+  Campos: IDEdicion -> IDEdicion
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectosEdiciones -> TbRiesgosMaterializaciones
+  Campos: IDEdicion -> IDEdicion
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectos -> tbCambios
+  Campos: IDProyecto -> IDProyecto
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectos -> TbProyectosSuministradores
+  Campos: IDProyecto -> IDProyecto
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectos -> TbRiesgosMaterializaciones
+  Campos: IDProyecto -> IDProyecto
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbProyectos -> TbTareas
+  Campos: IDProyecto -> IDProyecto
+  Atributos: CascadeDelete, CascadeUpdate
+RelaciÃ³n: TbRiesgos -> TbTareas
+  Campos: IDRiesgo -> IDRiesgo
+  Atributos: CascadeDelete, CascadeUpdate
